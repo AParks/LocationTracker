@@ -7,12 +7,16 @@
 //
 
 #import "ACPAppDelegate.h"
+#import "ACPViewController.h"
+
 
 @implementation ACPAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    [self start_normal_location_change_updates];
+
     return YES;
 }
 							
@@ -25,7 +29,9 @@
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    // If your application supports background execution, this method is called instead of //
+    [self.locationManager stopMonitoringSignificantLocationChanges];
+    self.locationManager.delegate = nil;
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -36,11 +42,50 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+   
+    
+    if (![CLLocationManager locationServicesEnabled]){
+        UIAlertView *alert = [[UIAlertView alloc]
+                              initWithTitle: @"Announcement"
+                              message: @"You have location services disabled. Go to Settings > Privacy > Location to enable it."
+                              delegate: self
+                              cancelButtonTitle:@"OK"
+                              otherButtonTitles:nil];
+        [alert show];
+    }
+    [self start_normal_location_change_updates];
+
+
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
+
+
+- (void) start_normal_location_change_updates
+{
+    if (!self.locationManager)
+        self.locationManager = [[CLLocationManager alloc] init];
+    self.locationManager.delegate = self;
+    self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters;
+    self.locationManager.distanceFilter = 1000;
+    [self.locationManager startMonitoringSignificantLocationChanges];
+
+}
+
+
+
+// CLLocation Management Delegate methods
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
+{
+    ACPViewController* mainController = (ACPViewController*)  self.window.rootViewController;
+    [mainController locationManager:manager didUpdateLocations:locations];
+
+}
+
+
 
 @end

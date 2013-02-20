@@ -7,7 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <MapKit/MapKit.h>
+@class ACPAppDelegate;
 
-@interface ACPViewController : UIViewController
+
+@interface ACPViewController : UIViewController 
+
+@property (weak, nonatomic) IBOutlet MKMapView *mapView;
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations;
+
+
 
 @end
